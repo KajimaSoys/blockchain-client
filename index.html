@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>Document</title>
+</head>
+<body style="padding: 28px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+    <div class="card" >
+        <div class="card-body">
+            <table class="table">
+                <tbody>
+                  <tr>
+                    <th scope="row">my coins</th>
+                    <td><div id="coins"></div></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">from</th>
+                    <td><div id="my-hash"></div></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">to</th>
+                    <td>
+                        <select id="select" class="form-select" aria-label="Default select example"></select></select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">coins</th>
+                    <td>
+                        <input id="count_coins" type="number" value="0">
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <th scope="row"></th>
+                    <td>
+                        <button type="button" class="btn btn-info" onclick="sendTask()">send task</button>
+                    </td>
+                 
+                  </tr>
+                  <tr>
+                    <th scope="row">message</th>
+                    <td>
+                        <textarea id="message-value2"> </textarea>
+                        <!-- <input id="count_coins" type="text" value="0"> -->
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row"></th>
+                    <td>
+                        <button type="button" class="btn btn-success" onclick="sendMessage()">send message</button>
+                    </td>  
+                  </tr>   
+                </tbody>
+              </table>
+        </div>
+      </div>
+      <br>
+      <div class="accordion" id="accordionExample2" style="width: 100%;">
+        <div class="card">
+          <div class="card-header" id="headingOne2">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne2" aria-expanded="true" aria-controls="collapseOne">
+                Диалог
+              </button>
+            </h2>
+          </div>
+      
+          <div id="collapseOne2" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample2">
+            <div class="card" >
+                <div id="messages" style="height: 300px; overflow-y: scroll;"></div>
+                <div class="card">
+                    <table class="table">
+                        <tbody>
+                          <tr>
+                            <td>
+                                <textarea id="message-value" style="width: 100%;"> </textarea>
+                                <br>
+                                <button type="button" style="width: 100%; border: 1px solid black;" class="btn btn-light" onclick="sendMessage()">send message</button>
+                            </td>
+                          </tr>
+                            </tbody>
+                      </table>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
+      <div class="accordion" id="accordionExample" style="width: 100%;">
+        <div class="card">
+          <div class="card-header" id="headingOne">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                Блоки
+              </button>
+            </h2>
+          </div>
+      
+          <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+            <div class="card" >
+                <div id="active-blocks" style="margin: 5px; padding: 5px">
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+      
+    <script>
+        let checkCoins = () => {
+            fetch('http://127.0.0.1:8000/coins')
+                .then((response) => response.json())
+                .then((res) => {
+                    if (!res.error) {
+                        document.getElementById('coins').innerHTML = res.coins
+                    }
+                });
+        }
+
+        let getMyHash = () => {
+            fetch('http://127.0.0.1:8000/userHash')
+                .then((response) => response.json())
+                .then((res) => {
+                    if (!res.error) {
+                        console.log(res)
+                        document.getElementById('my-hash').innerHTML = res
+                    }
+                });
+        }
+
+        let getChain = () => {
+            fetch('http://127.0.0.1:8000/chains')
+                .then((response) => response.json())
+                .then((res) => {
+                    if (!res.error) {
+                        let options = res.chains.users_block.map((ub, i) => {
+                            if (!i) {
+                                return `
+                            <option value=${ub.hach} selected>${ub.hach}</option>
+                            ` 
+                            }
+                            return `
+                            <option value=${ub.hach}>${ub.hach}</option>
+                            `
+                        })
+                        let activeBlocks = res.chains.block_active.map(b => {
+                            let trans = b.data_json.map(d => {
+                                return `
+                                    <div class="card" style="margin: 5px; padding: 5px">
+                                        <table class="table">
+                                          <tbody>
+                                            <tr>
+                                              <td>from_hach</td>
+                                              <td>${d.data_json.from_hach === '92ac7967c50052c20619118e1783e28f88ca9f14767e982085815982a8920325' ? 'me (92ac7967c50052c20619118e1783e28f88ca9f14767e982085815982a8920325)' : d.data_json.from_hach}</td>
+                                            </tr>
+                                            <tr>
+                                              <td>to_hach</td>
+                                              <td>${d.data_json.to_hach}</td>
+                                            </tr>
+                                            <tr>
+                                              <td>${d.data_json.type_task === 'custom' ? 'message' : 'coins'}</td>
+                                              <td>${d.data_json.type_task === 'custom' ? d.data_json.message : d.data_json.count_coins}</td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                    </div>
+                                
+                                `
+                            })
+
+                            return `
+                            <div class="card" style="margin: 5px; padding: 5px">
+                                <center><h3>Block ${b.id}</h3></center>
+                                ${trans.join(`
+                                    <center>
+                                       <img src="https://cdn-icons-png.flaticon.com/512/475/475457.png" width='50px'/> 
+                                        <center>
+                                    `)}
+                            </div>
+                            ` 
+                        })
+                        let allMessages = []
+                        res.chains.block_active.forEach(b => {
+                            let trans = b.data_json.forEach(d => {
+                                if (d.data_json.from_hach === '10fa511f879707980af0f16720bcc5e20a2b720a888200a0697f749aed56eb07' && d.data_json.to_hach === '92ac7967c50052c20619118e1783e28f88ca9f14767e982085815982a8920325' && d.data_json.type_task === 'custom') {
+                                    allMessages.push(`<div  style="display: flex; align-items: flex-start;  padding: 20px">
+                                        <div class="alert alert-info" role="alert">
+                                            ${d.data_json.message}
+                                            </div>
+                                        </div>`)
+                                }
+
+                                if (d.data_json.from_hach === '92ac7967c50052c20619118e1783e28f88ca9f14767e982085815982a8920325' && d.data_json.to_hach === '10fa511f879707980af0f16720bcc5e20a2b720a888200a0697f749aed56eb07' && d.data_json.type_task === 'custom') {
+                                    allMessages.push(`<div style="display: flex; justify-content: end; padding: 20px">
+                                        <div class="alert alert-success" role="alert">
+                                            ${d.data_json.message}
+                                            </div>
+                                        </div>`)
+                                }    
+                            })
+                        })
+                        document.getElementById('select').innerHTML = options
+                        document.getElementById('active-blocks').innerHTML = activeBlocks.join('')
+                        document.getElementById('messages').innerHTML = allMessages.reverse().join('')
+                        console.log(res)
+                    }
+                });
+        }
+
+        let sendTask = () => {
+            fetch('http://127.0.0.1:8000/send_task', {
+                method: 'POST',
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    type_task : "send_coins",
+                    from_hach : getFromHash(),
+                    to_hach : getToHash(),
+                    count_coins : +getCountCoins(),
+                }) 
+            }).then(() => {
+                clear()
+            })
+        }
+
+        let sendMessage = () => {
+            fetch('http://127.0.0.1:8000/send_message', {
+                method: 'POST',
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    type_task : "custom",
+                    from_hach : getFromHash(),
+                    to_hach : '10fa511f879707980af0f16720bcc5e20a2b720a888200a0697f749aed56eb07',
+                    message : getMessage(),
+                }) 
+            }).then(() => {
+                clear()
+            })
+        }
+
+        let getFromHash = () => document.getElementById('my-hash').innerHTML
+
+        let getToHash = () => document.getElementById('select').value
+
+        let getCountCoins = () => document.getElementById('count_coins').value
+
+        let getMessage = () => document.getElementById('message-value').value
+
+        let clear = () => {
+            document.getElementById('count_coins').value = 0
+            document.getElementById('message-value').value = ''
+        } 
+
+        let start = () => {
+            checkCoins()
+            getMyHash()
+            getChain()
+        }
+
+        start()
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>

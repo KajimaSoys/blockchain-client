@@ -4,8 +4,8 @@ from pprint import pprint as print
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-username = 'AleksandrT'
-password = '080901'
+username = 'AysheR'
+password ='RehsyA'
 
 init = BlockChain(username=username, password=password, base_url='https://b1.ahmetshin.com/restapi/')
 

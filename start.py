@@ -3,8 +3,8 @@ import json
 from pprint import pprint as print
 link_client = 'https://b1.ahmetshin.com/static/blockchain.py'
 
-username = 'AleksandrT'
-password ='080901'	
+username = 'AysheR'
+password ='RehsyA'
 init = BlockChain(username=username, password=password, base_url = 'https://b1.ahmetshin.com/restapi/')
 init.get_version_file()
 
